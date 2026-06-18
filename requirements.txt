@@ -1,0 +1,7 @@
+# Redrob Hackathon — Intelligent Candidate Ranking
+# No external dependencies needed for ranking.
+# Python 3.9+ required (stdlib only).
+
+# For sandbox demo only (not needed for ranking):
+gradio>=4.0.0
+pandas>=2.0.0
