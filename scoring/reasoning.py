@@ -173,7 +173,4 @@ def generate(candidate: dict, rank: int, dim_scores: dict) -> str:
     # Assemble
     reasoning = "; ".join(parts) + concerns + "."
 
-    if len(reasoning) > 250:
-        reasoning = reasoning[:247] + "..."
-
     return reasoning

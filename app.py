@@ -24,12 +24,39 @@ def run_ranking(file_obj):
     df = pd.read_csv(out_path)
     
     elapsed = time.time() - start_time
-    total_processed = len(results['all_scored']) + len(results['honeypots'])
-    status = f"✅ Successfully processed {total_processed} candidates in {elapsed:.2f} seconds."
+    status = f"✅ Successfully processed all candidates in {elapsed:.2f} seconds."
     
     return df, status, out_path
 
-with gr.Blocks(title="Redrob Hackathon - Sandbox", theme=gr.themes.Soft()) as app:
+custom_css = """
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+.gradio-container {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    padding: 25px !important;
+}
+button {
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease 0s !important;
+    border-radius: 12px !important;
+}
+button:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 15px 20px rgba(0,0,0,0.2) !important;
+}
+.dataframe table {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+}
+"""
+
+with gr.Blocks(title="Redrob Hackathon - Sandbox", theme=gr.themes.Soft(), css=custom_css) as app:
     gr.Markdown("# 🏆 Intelligent Candidate Ranking — Sandbox Demo")
     gr.Markdown("""
     **Architecture:** 6-Dimension Feature Scoring + Anti-Gaming Penalty Engine
