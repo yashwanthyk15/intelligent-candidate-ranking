@@ -56,14 +56,18 @@ def score(candidate: dict) -> float:
     if not domain_scores:
         return 0.0
 
-    avg_score = sum(domain_scores) / len(domain_scores)
+    domain_scores.sort(reverse=True)
 
+    # Heavily weight depth: 60% top, 30% second, 10% third
+    depth_score = (domain_scores[0] * 0.60)
+    if len(domain_scores) > 1:
+        depth_score += (domain_scores[1] * 0.30)
+    if len(domain_scores) > 2:
+        depth_score += (domain_scores[2] * 0.10)
+
+    # Small bonus for remaining breadth
     domains_covered = sum(1 for s in domain_scores if s > 0.3)
-    if domains_covered >= 5:
-        avg_score = min(1.0, avg_score * 1.25)
-    elif domains_covered >= 4:
-        avg_score = min(1.0, avg_score * 1.15)
-    elif domains_covered >= 3:
-        avg_score = min(1.0, avg_score * 1.05)
+    if domains_covered >= 4:
+        depth_score = min(1.0, depth_score * 1.05)
 
-    return round(avg_score, 4)
+    return round(depth_score, 4)

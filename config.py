@@ -11,10 +11,10 @@ REFERENCE_DATE = date(2026, 6, 15)
 # DIMENSION WEIGHTS (must sum to 1.0)
 # ============================================================================
 WEIGHTS = {
-    'role_alignment': 0.28,
+    'role_alignment': 0.30,
     'shipped_systems': 0.25,
     'tech_depth': 0.20,
-    'experience': 0.12,
+    'experience': 0.10,
     'behavioral': 0.10,
     'location': 0.05,
 }
@@ -22,6 +22,7 @@ WEIGHTS = {
 # ============================================================================
 # DIMENSION 1: ROLE ALIGNMENT — Title Tier Mapping
 # ============================================================================
+# Tier S (1.0) — Perfect title match for Senior AI Engineer
 TITLE_TIER_S = [
     'ml engineer', 'ai engineer', 'ai research engineer', 'senior ml engineer',
     'senior machine learning engineer', 'nlp engineer', 'search engineer',
@@ -30,24 +31,28 @@ TITLE_TIER_S = [
     'applied ml engineer', 'applied ai engineer', 'junior ml engineer',
 ]
 
+# Tier A (0.85) — Strong adjacent roles
 TITLE_TIER_A = [
     'data scientist', 'senior data scientist', 'senior data engineer',
     'analytics engineer', 'research scientist', 'research engineer',
     'applied scientist', 'ml ops engineer', 'mlops engineer',
 ]
 
+# Tier B (0.65) — Tech roles that could have ML experience
 TITLE_TIER_B = [
     'software engineer', 'senior software engineer', 'backend engineer',
     'data engineer', 'data analyst', 'full stack developer',
     'senior backend engineer', 'platform engineer',
 ]
 
+# Tier C (0.45) — Tech roles but unlikely ML depth
 TITLE_TIER_C = [
     'devops engineer', 'cloud engineer', 'qa engineer', 'java developer',
     '.net developer', 'mobile developer', 'frontend engineer',
     'ios developer', 'android developer', 'sre engineer',
 ]
 
+# Tier F (0.0) — Non-tech roles (the TRAP candidates)
 TITLE_TIER_F = [
     'hr manager', 'accountant', 'marketing manager', 'sales executive',
     'content writer', 'civil engineer', 'mechanical engineer',
@@ -153,17 +158,17 @@ EXPERIENCE_SCORE_MAP = [
 ]
 
 JOB_HOPPER_THRESHOLD_MONTHS = 18
-JOB_HOPPER_PENALTY = 0.15
+JOB_HOPPER_PENALTY = 0.30
 
 # ============================================================================
 # DIMENSION 5: BEHAVIORAL — Signal Weights
 # ============================================================================
 BEHAVIORAL_WEIGHTS = {
-    'recency': 0.35,
-    'open_to_work': 0.20,
-    'response_rate': 0.20,
-    'notice_period': 0.10,
-    'market_validation': 0.15,
+    'recency': 0.40,
+    'open_to_work': 0.30,
+    'response_rate': 0.30,
+    'notice_period': 0.0,
+    'market_validation': 0.0,
 }
 
 RECENCY_SCORES = [

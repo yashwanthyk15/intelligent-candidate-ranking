@@ -30,14 +30,16 @@ def _count_keyword_matches(text: str, keywords: list) -> int:
 def score(candidate: dict) -> float:
     """Score shipped systems evidence (0.0 to 1.0)."""
     total_points = 0
-    all_consulting = True
+    career_history = candidate.get('career_history', [])
+    total_roles = len(career_history)
+    consulting_count = 0
 
-    for role in candidate.get('career_history', []):
+    for role in career_history:
         desc = role.get('description', '')
         company = role.get('company', '')
 
-        if not _is_consulting_company(company):
-            all_consulting = False
+        if _is_consulting_company(company):
+            consulting_count += 1
 
         t1 = _count_keyword_matches(desc, SHIPPED_TIER1_KEYWORDS)
         total_points += min(t1 * SHIPPED_TIER1_POINTS, SHIPPED_TIER1_CAP)
@@ -61,8 +63,12 @@ def score(candidate: dict) -> float:
 
     raw_score = min(1.0, total_points / SHIPPED_MAX_SCORE)
 
-    # Consulting-only penalty
-    if all_consulting and len(candidate.get('career_history', [])) > 0:
-        raw_score *= 0.50
+    # Consulting penalty based on ratio
+    if total_roles > 0:
+        consulting_ratio = consulting_count / total_roles
+        if consulting_ratio == 1.0:
+            raw_score *= 0.50
+        elif consulting_ratio > 0.70:
+            raw_score *= 0.70
 
     return round(raw_score, 4)

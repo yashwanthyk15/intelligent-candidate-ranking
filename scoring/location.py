@@ -25,5 +25,5 @@ def score(candidate: dict) -> float:
         return 0.75 if willing else 0.55
 
     if willing:
-        return 0.30
+        return 0.60
     return 0.15
