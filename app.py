@@ -94,7 +94,7 @@ button:hover {
 }
 """
 
-with gr.Blocks(title="Redrob Hackathon - Sandbox", theme=gr.themes.Soft(), css=custom_css) as app:
+with gr.Blocks(title="Redrob Hackathon - Sandbox") as app:
     gr.Markdown("# 🏆 Intelligent Candidate Ranking — God-Level Sandbox")
     gr.Markdown("""
     **Architecture:** 6-Dimension Feature Scoring + Pure-Python BM25 Relevance Engine
@@ -124,7 +124,7 @@ with gr.Blocks(title="Redrob Hackathon - Sandbox", theme=gr.themes.Soft(), css=c
             gr.Markdown("### Macro Analysis of Processed Candidates")
             with gr.Row():
                 hp_plot = gr.BarPlot(x="Category", y="Count", title="Honeypots vs Valid (Total Dataset)", tooltip=["Category", "Count"])
-                title_plot = gr.BarPlot(x="Title", y="Count", title="Title Distribution (Top 100)", vertical=False, tooltip=["Title", "Count"])
+                title_plot = gr.BarPlot(x="Count", y="Title", title="Title Distribution (Top 100)", tooltip=["Title", "Count"])
 
     run_btn.click(
         fn=run_ranking,
@@ -140,4 +140,4 @@ with gr.Blocks(title="Redrob Hackathon - Sandbox", theme=gr.themes.Soft(), css=c
     )
 
 if __name__ == "__main__":
-    app.launch()
+    app.launch(theme=gr.themes.Soft(), css=custom_css)
