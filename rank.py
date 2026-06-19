@@ -30,6 +30,7 @@ from scoring import honeypot
 from scoring import stuffing
 from scoring import contradiction
 from scoring import reasoning
+from scoring import bm25
 
 
 def score_candidate(candidate: dict) -> dict:
@@ -49,6 +50,7 @@ def score_candidate(candidate: dict) -> dict:
         }
 
     # Score all 6 dimensions
+    bm25_score = bm25.score(candidate)
     dim_scores = {
         'role_alignment': role_alignment.score(candidate),
         'shipped_systems': shipped_systems.score(candidate),
@@ -56,6 +58,7 @@ def score_candidate(candidate: dict) -> dict:
         'experience': experience.score(candidate),
         'behavioral': behavioral.score(candidate),
         'location': location.score(candidate),
+        'bm25_semantic': bm25_score,
     }
 
     # Compute weighted sum
@@ -72,6 +75,9 @@ def score_candidate(candidate: dict) -> dict:
 
     # Final score
     final_score = weighted_sum * stuff_penalty * contra_penalty
+    
+    # BM25 math boost for dense JD keyword overlap
+    final_score += (bm25_score * 0.05)
 
     # GitHub bonus (additive, small)
     github = candidate.get('redrob_signals', {}).get('github_activity_score', -1)
@@ -142,7 +148,12 @@ def process_candidates(candidates_path: str, top_n: int = 200) -> list:
     results = [(score_val, cid, result) for score_val, cid, result in heap]
     results.sort(key=lambda x: (-x[0], x[1]))
 
-    return results
+    stats = {
+        'total_processed': total,
+        'honeypots': honeypots,
+    }
+
+    return results, stats
 
 
 def generate_output(results: list, output_path: str):
@@ -229,7 +240,7 @@ def main():
     start_time = time.time()
 
     print("\n[Stage 1-4] Scoring all candidates...", file=sys.stderr)
-    results = process_candidates(args.candidates)
+    results, stats = process_candidates(args.candidates)
 
     print("\n[Stage 5-6] Generating final ranking + reasoning...", file=sys.stderr)
     generate_output(results, args.out)

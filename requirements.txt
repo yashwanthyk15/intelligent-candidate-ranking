@@ -5,3 +5,4 @@
 # For sandbox demo only (not needed for ranking):
 gradio>=4.0.0
 pandas>=2.0.0
+plotly>=5.0.0
