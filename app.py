@@ -57,40 +57,60 @@ def show_radar_chart(evt: gr.SelectData, results_state):
     keys = ['role_alignment', 'shipped_systems', 'tech_depth', 'experience', 'behavioral', 'location', 'bm25_semantic']
     values = [dim_scores.get(k, 0.0) for k in keys]
     
-    # Plotly Radar Chart
+    # Plotly Radar Chart (Dark Mode)
     df_radar = pd.DataFrame(dict(r=values, theta=categories))
-    fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0, 1])
-    fig.update_traces(fill='toself')
+    fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0, 1], template="plotly_dark")
+    fig.update_traces(fill='toself', line_color='#8b5cf6', fillcolor='rgba(139, 92, 246, 0.3)')
     fig.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 1], color='#52525b', gridcolor='#27272a'),
+            angularaxis=dict(color='#e4e4e7', gridcolor='#27272a')
+        ),
         showlegend=False,
-        title=f"Candidate: {result_dict['candidate_id']}",
+        title=dict(text=f"Candidate: {result_dict['candidate_id']}", font=dict(color='#fafafa')),
         paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)'
+        plot_bgcolor='rgba(0,0,0,0)',
+        margin=dict(l=40, r=40, t=40, b=40)
     )
     
     return fig
 
 custom_css = """
-body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+body, .gradio-container {
+    background-color: #09090b !important;
+    color: #fafafa !important;
 }
 .gradio-container {
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
-    border-radius: 20px !important;
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
-    padding: 25px !important;
-}
-button {
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
-    transition: all 0.3s ease 0s !important;
+    border: 1px solid #27272a !important;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5) !important;
     border-radius: 12px !important;
 }
-button:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 15px 20px rgba(0,0,0,0.2) !important;
+button.primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+    border: none !important;
+    color: white !important;
+    box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.39) !important;
+    transition: transform 0.2s ease !important;
+}
+button.primary:hover {
+    transform: translateY(-2px) !important;
+}
+table {
+    border-collapse: collapse !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+}
+th {
+    background-color: #18181b !important;
+    color: #a1a1aa !important;
+    border-bottom: 1px solid #27272a !important;
+}
+td {
+    background-color: #09090b !important;
+    border-bottom: 1px solid #27272a !important;
+}
+tr:hover td {
+    background-color: #27272a !important;
 }
 """
 
@@ -140,4 +160,4 @@ with gr.Blocks(title="Redrob Hackathon - Sandbox") as app:
     )
 
 if __name__ == "__main__":
-    app.launch(theme=gr.themes.Soft(), css=custom_css)
+    app.launch(theme=gr.themes.Base(), css=custom_css)
