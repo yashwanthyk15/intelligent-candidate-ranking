@@ -9,7 +9,7 @@ from rank import process_candidates, generate_output
 
 def run_ranking(file_obj):
     if file_obj is None:
-        return None, "Please upload a candidates.jsonl file.", None, None, None, None
+        return None, "Please upload a candidates.jsonl file.", None, None, None, None, gr.update(value=None)
     
     start_time = time.time()
     input_path = file_obj.name
@@ -38,7 +38,7 @@ def run_ranking(file_obj):
     title_counts = pd.Series(titles).value_counts().reset_index()
     title_counts.columns = ["Title", "Count"]
     
-    return df, status, out_path, results, hp_df, title_counts
+    return df, status, out_path, results, hp_df, title_counts, gr.update(value=None)
 
 def show_radar_chart(evt: gr.SelectData, results_state):
     if not results_state:
@@ -115,7 +115,7 @@ tr:hover td {
 """
 
 with gr.Blocks(title="Redrob Hackathon - Sandbox") as app:
-    gr.Markdown("# 🏆 Intelligent Candidate Ranking — God-Level Sandbox")
+    gr.Markdown("# 🏆 Intelligent Candidate Ranking System")
     gr.Markdown("""
     **Architecture:** 6-Dimension Feature Scoring + Pure-Python BM25 Relevance Engine
     **Constraints:** CPU only, ≤ 16GB RAM, No external APIs, < 300s runtime.
@@ -133,7 +133,7 @@ with gr.Blocks(title="Redrob Hackathon - Sandbox") as app:
                     status_out = gr.Markdown("**Status:** Waiting for upload...")
                     download_out = gr.File(label="Download sandbox_submission.csv")
                     
-                    gr.Markdown("### 🔍 Explainable AI")
+                    gr.Markdown("### 🔍 Candidate Dimension Breakdown")
                     gr.Markdown("Select a candidate from the table to view their Radar Profile.")
                     radar_plot = gr.Plot(label="Candidate Dimension Breakdown")
                     
@@ -149,7 +149,7 @@ with gr.Blocks(title="Redrob Hackathon - Sandbox") as app:
     run_btn.click(
         fn=run_ranking,
         inputs=[file_input],
-        outputs=[table_out, status_out, download_out, results_state, hp_plot, title_plot]
+        outputs=[table_out, status_out, download_out, results_state, hp_plot, title_plot, radar_plot]
     )
     
     # Trigger radar chart when a row is selected

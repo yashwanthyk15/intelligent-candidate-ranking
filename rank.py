@@ -79,6 +79,11 @@ def score_candidate(candidate: dict) -> dict:
     # BM25 math boost for dense JD keyword overlap
     final_score += (bm25_score * 0.05)
 
+    # Continuous tie-breaking micro-bonuses (guarantees unique float scores)
+    yoe_val = candidate.get('years_of_experience', 0.0)
+    resp_val = candidate.get('recruiter_response_rate', 0.0)
+    final_score += (yoe_val * 0.001) + (resp_val * 0.0001)
+
     # GitHub bonus (additive, small)
     github = candidate.get('redrob_signals', {}).get('github_activity_score', -1)
     if github > 50:

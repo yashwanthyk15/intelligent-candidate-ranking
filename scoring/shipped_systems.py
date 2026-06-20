@@ -17,9 +17,14 @@ from config import (
 )
 
 
+import re
+
 def _is_consulting_company(company: str) -> bool:
     c = company.lower().strip()
-    return any(cons in c for cons in CONSULTING_COMPANIES)
+    for cons in CONSULTING_COMPANIES:
+        if re.search(rf"\b{re.escape(cons)}\b", c):
+            return True
+    return False
 
 
 def _count_keyword_matches(text: str, keywords: list) -> int:
