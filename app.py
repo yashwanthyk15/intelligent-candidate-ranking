@@ -8,6 +8,7 @@ from pathlib import Path
 from rank import process_candidates, generate_output
 
 def run_ranking(file_obj):
+    # TODO: refactor this if gradio crashes on large files
     if file_obj is None:
         return None, "Please upload a candidates.jsonl file.", None, None, None, None, gr.update(value=None)
     

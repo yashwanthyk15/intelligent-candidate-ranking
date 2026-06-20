@@ -7,9 +7,7 @@ from datetime import date
 # Reference date for recency calculations
 REFERENCE_DATE = date(2026, 6, 15)
 
-# ============================================================================
 # DIMENSION WEIGHTS (must sum to 1.0)
-# ============================================================================
 WEIGHTS = {
     'role_alignment': 0.30,
     'shipped_systems': 0.25,
@@ -19,9 +17,7 @@ WEIGHTS = {
     'location': 0.05,
 }
 
-# ============================================================================
 # DIMENSION 1: ROLE ALIGNMENT — Title Tier Mapping
-# ============================================================================
 # Tier S (1.0) — Perfect title match for Senior AI Engineer
 TITLE_TIER_S = [
     'ml engineer', 'ai engineer', 'ai research engineer', 'senior ml engineer',
@@ -61,9 +57,7 @@ TITLE_TIER_F = [
     'teacher', 'doctor', 'lawyer', 'nurse', 'pharmacist',
 ]
 
-# ============================================================================
 # DIMENSION 2: SHIPPED SYSTEMS — Career History Keywords
-# ============================================================================
 SHIPPED_TIER1_KEYWORDS = [
     'ranking system', 'retrieval system', 'recommendation system',
     'search system', 'candidate matching', 'talent matching',
@@ -108,9 +102,7 @@ SHIPPED_TIER3_CAP = 20
 SCALE_BONUS = 10
 SHIPPED_MAX_SCORE = 130
 
-# ============================================================================
 # DIMENSION 3: TECHNICAL DEPTH — Core Domain Keywords
-# ============================================================================
 CORE_DOMAINS = {
     'embeddings_retrieval': [
         'sentence-transformers', 'sentence transformers', 'openai embeddings',
@@ -143,9 +135,7 @@ CORE_DOMAINS = {
     ],
 }
 
-# ============================================================================
 # DIMENSION 4: EXPERIENCE — Ideal Ranges
-# ============================================================================
 EXPERIENCE_SCORE_MAP = [
     # (min_yoe, max_yoe, score)
     (5, 9, 1.0),
@@ -160,9 +150,7 @@ EXPERIENCE_SCORE_MAP = [
 JOB_HOPPER_THRESHOLD_MONTHS = 18
 JOB_HOPPER_PENALTY = 0.30
 
-# ============================================================================
 # DIMENSION 5: BEHAVIORAL — Signal Weights
-# ============================================================================
 BEHAVIORAL_WEIGHTS = {
     'recency': 0.40,
     'open_to_work': 0.30,
@@ -187,9 +175,7 @@ NOTICE_SCORES = [
     (180, 0.15),
 ]
 
-# ============================================================================
-# DIMENSION 6: LOCATION
-# ============================================================================
+# Dimension 6: location
 PREFERRED_LOCATIONS = [
     'pune', 'noida', 'delhi', 'new delhi', 'delhi ncr', 'gurgaon',
     'gurugram', 'faridabad', 'ghaziabad',
@@ -198,9 +184,7 @@ TIER1_INDIA_LOCATIONS = [
     'bangalore', 'bengaluru', 'mumbai', 'hyderabad', 'chennai', 'kolkata',
 ]
 
-# ============================================================================
 # CONSULTING COMPANIES (JD explicit disqualifier)
-# ============================================================================
 CONSULTING_COMPANIES = [
     'tcs', 'infosys', 'wipro', 'accenture', 'cognizant', 'capgemini',
     'tech mahindra', 'hcl', 'mindtree', 'mphasis', 'hexaware',
@@ -215,15 +199,11 @@ PRODUCT_COMPANIES = [
     'pied piper', 'hooli', 'stark industries',
 ]
 
-# ============================================================================
-# HONEYPOT DETECTION THRESHOLDS
-# ============================================================================
+# Honeypot detection thresholds
 HONEYPOT_EXPERT_ZERO_DURATION_MIN = 2
 HONEYPOT_EXPERIENCE_SKILL_RATIO = 3
 
-# ============================================================================
-# KEYWORD STUFFING THRESHOLDS
-# ============================================================================
+# Keyword stuffing thresholds
 STUFFING_HIGH_SKILL_COUNT = 22
 STUFFING_EXPERT_RATIO = 0.60
 STUFFING_TITLE_SKILL_MISMATCH = 8

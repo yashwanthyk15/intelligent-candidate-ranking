@@ -8,29 +8,29 @@ Usage:
 Produces a ranked top-100 CSV for the Senior AI Engineer role.
 Runs in < 60 seconds on CPU with < 16 GB RAM. No network calls.
 """
-import json
-import csv
-import sys
 import time
-import heapq
-import argparse
 from pathlib import Path
+import json
+from scoring import role_alignment
 
+import sys
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from config import WEIGHTS
-from scoring import role_alignment
-from scoring import shipped_systems
+import csv
 from scoring import tech_depth
+from config import WEIGHTS
+import argparse
+from scoring import shipped_systems
 from scoring import experience
-from scoring import behavioral
+import heapq
 from scoring import location
+from scoring import behavioral
 from scoring import honeypot
+from scoring import bm25
 from scoring import stuffing
 from scoring import contradiction
 from scoring import reasoning
-from scoring import bm25
 
 
 def score_candidate(candidate: dict) -> dict:
@@ -112,6 +112,7 @@ def score_candidate(candidate: dict) -> dict:
 
 
 def process_candidates(candidates_path: str, top_n: int = 200) -> list:
+    # print(f"Starting processing... path={candidates_path}")
     """
     Stream through candidates.jsonl and keep top N scored candidates.
     Uses a min-heap to efficiently track top N.
@@ -137,6 +138,7 @@ def process_candidates(candidates_path: str, top_n: int = 200) -> list:
             score_val = result['final_score']
             cid = result['candidate_id']
 
+            # print(f"score = {score_val}")
             if len(heap) < top_n:
                 heapq.heappush(heap, (score_val, cid, result))
             elif score_val > heap[0][0]:
