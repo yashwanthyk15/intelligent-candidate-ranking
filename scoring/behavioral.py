@@ -1,7 +1,3 @@
-"""
-Dimension 5: Behavioral Availability
-Assesses whether the candidate is actually hirable right now.
-"""
 import sys
 from datetime import date
 from pathlib import Path
@@ -27,7 +23,7 @@ def _score_from_thresholds(value: float, thresholds: list) -> float:
 
 
 def score(candidate: dict) -> float:
-    """Score behavioral availability (0.0 to 1.0)."""
+        """Calculate behavioral score"""
     signals = candidate.get('redrob_signals', {})
 
     days_ago = _days_since_active(signals.get('last_active_date', '2020-01-01'))

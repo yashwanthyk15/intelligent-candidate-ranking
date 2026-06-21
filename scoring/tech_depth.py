@@ -1,7 +1,3 @@
-"""
-Dimension 3: Specific Technical Depth
-Measures coverage of the 5 core domains from the JD.
-"""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -21,7 +17,8 @@ def _career_text(candidate: dict) -> str:
 
 
 def score(candidate: dict) -> float:
-    """Score technical depth (0.0 to 1.0)."""
+    # TODO: this is O(N^2) fix later if slow
+        """Does the candidate have good tech depth?"""
     skill_names = _skill_names_lower(candidate)
     career_text = _career_text(candidate)
     assessments = candidate.get('redrob_signals', {}).get('skill_assessment_scores', {})

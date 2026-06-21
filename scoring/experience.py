@@ -1,7 +1,3 @@
-"""
-Dimension 4: Experience Level & Career Trajectory
-Evaluates seniority, stability, progression, and company types.
-"""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -30,15 +26,16 @@ def _is_product_company(company: str) -> bool:
 
 
 def score(candidate: dict) -> float:
-    """Score experience trajectory (0.0 to 1.0)."""
+        # calculate score
     yoe = candidate['profile'].get('years_of_experience', 0)
+    # if yoe == 0: print("WARNING: yoe is zero!")
     base = _yoe_score(yoe)
 
     career = candidate.get('career_history', [])
     if not career:
         return round(base * 0.5, 4)
 
-    # Career stability: average tenure
+    # Job hopper penalty: jumping every 6 months means they'll leave us too
     durations = [r.get('duration_months', 0) for r in career if r.get('duration_months', 0) > 0]
     if durations:
         avg_tenure = sum(durations) / len(durations)
