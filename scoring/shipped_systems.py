@@ -29,7 +29,7 @@ def _count_keyword_matches(text: str, keywords: list) -> int:
 
 
 def score(candidate: dict) -> float:
-        """Does the candidate have good shipped systems?"""
+    """Does the candidate have good shipped systems?"""
     total_points = 0
     career_history = candidate.get('career_history', [])
     total_roles = len(career_history)

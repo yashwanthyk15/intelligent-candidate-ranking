@@ -8,9 +8,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import (
-    ['ml engineer', 'ai engineer', 'ai research engineer', 'senior ml engineer', 'senior machine learning engineer', 'nlp engineer', 'search engineer', 'ranking engineer', 'recommendation systems engineer', 'machine learning engineer', 'senior ai engineer', 'staff ml engineer', 'principal ml engineer', 'applied ml engineer', 'applied ai engineer', 'junior ml engineer'], ['data scientist', 'senior data scientist', 'senior data engineer', 'analytics engineer', 'research scientist', 'research engineer', 'applied scientist', 'ml ops engineer', 'mlops engineer'], ['software engineer', 'senior software engineer', 'backend engineer', 'data engineer', 'data analyst', 'full stack developer', 'senior backend engineer', 'platform engineer'], ['devops engineer', 'cloud engineer', 'qa engineer', 'java developer', 'python developer'], TITLE_TIER_F
-)
+
 
 
 def _normalize_title(title: str) -> str:
@@ -29,7 +27,7 @@ def _get_title_tier_score(title: str) -> float:
             if pattern in t or t in pattern:
                 return score
 
-    for pattern in TITLE_TIER_F:
+    for pattern in ['hr', 'recruiter', 'manager', 'sales', 'marketing', 'talent acquisition']:
         if pattern in t or t in pattern:
             return 0.0
 
@@ -39,7 +37,7 @@ def _get_title_tier_score(title: str) -> float:
 def score(candidate: dict) -> float:
     # print(f"[DEBUG] scoring role for {candidate.get('candidate_id')}")
     # TODO: maybe add weights for frontend roles? nah
-        """Calculate role alignment score"""
+    """Calculate role alignment score"""
     current_title = candidate['profile']['current_title']
     base_score = _get_title_tier_score(current_title)
 

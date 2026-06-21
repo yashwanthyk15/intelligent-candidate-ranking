@@ -28,35 +28,37 @@ def is_honeypot(candidate: dict) -> bool:
 
     flags = 0
 
-    # 1. Expert skills with 0 duration
-    expert_zero_dur = sum(
-        1 for s in skills
-        if s.get('proficiency') == 'expert' and s.get('duration_months', 1) == 0
-    )
-    if expert_zero_dur >= HONEYPOT_EXPERT_ZERO_DURATION_MIN:
+    # Honeypot red flag: expert with zero duration = obvious fake
+    bad = 0
+    for s in skills:
+        p = s.get('proficiency')
+        d = s.get('duration_months', 1)
+        if p == 'expert' and d == 0:
+            bad += 1
+    if bad >= HONEYPOT_EXPERT_ZERO_DURATION_MIN:
         flags += 2
 
-    # 2. Very junior with many expert skills
-    expert_count = sum(1 for s in skills if s.get('proficiency') == 'expert')
-    if yoe < HONEYPOT_EXPERIENCE_SKILL_RATIO and expert_count >= 6:
+    # You can't be a 1-year junior with 6 expert skills, come on
+    e_cnt = sum(1 for s in skills if s.get('proficiency') == 'expert')
+    if yoe < HONEYPOT_EXPERIENCE_SKILL_RATIO and e_cnt >= 6:
         flags += 2
 
-    # 3. Career duration anomaly
+    # Some resumes have overlapping concurrent jobs making them look like they worked 20 years in 5 years
     career = candidate.get('career_history', [])
-    total_career_months = sum(r.get('duration_months', 0) for r in career)
-    expected_months = yoe * 12
-    if expected_months > 0 and total_career_months > 0:
-        ratio = total_career_months / expected_months
-        if ratio > 2.0 or ratio < 0.3:
+    tot_m = sum(r.get('duration_months', 0) for r in career)
+    exp_m = yoe * 12
+    if exp_m > 0 and tot_m > 0:
+        r = tot_m / exp_m
+        if r > 2.0 or r < 0.3:
             flags += 1
 
-    # 4. Assessment score contradicts proficiency
+    # Claiming expert but bombing the assessment? Liar.
     for s in skills:
-        skill_name = s.get('name', '')
+        n = s.get('name', '')
         if s.get('proficiency') == 'expert':
-            for assess_name, assess_score in assessments.items():
-                if skill_name.lower() in assess_name.lower() or assess_name.lower() in skill_name.lower():
-                    if assess_score < 20:
+            for a_name, a_score in assessments.items():
+                if n.lower() in a_name.lower() or a_name.lower() in n.lower():
+                    if a_score < 20:
                         flags += 1
                         break
 

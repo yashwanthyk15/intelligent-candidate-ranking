@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 def score(candidate: dict) -> float:
-        """Returns score for location"""
+    """Returns score for location"""
     location = candidate['profile'].get('location', '').lower()
     country = candidate['profile'].get('country', '').lower()
     willing = candidate.get('redrob_signals', {}).get('willing_to_relocate', False)

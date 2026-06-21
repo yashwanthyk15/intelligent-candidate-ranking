@@ -24,7 +24,7 @@ def tokenize(text: str) -> list:
     return re.findall(r'\b[a-z0-9-]+\b', text.lower())
 
 def score(candidate: dict) -> float:
-    """Calculates an approximate BM25 score bounded to [0.0, 1.0]"""
+    """Does the candidate have good bm25?"""
     # 1. Gather all candidate text
     texts = [candidate['profile'].get('summary', '')]
     for role in candidate.get('career_history', []):
@@ -35,6 +35,7 @@ def score(candidate: dict) -> float:
     doc_len = len(tokens)
     
     if doc_len == 0:
+        # print('WARNING: empty doc')
         return 0.0
         
     term_counts = Counter(tokens)
