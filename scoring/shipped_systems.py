@@ -1,7 +1,3 @@
-"""
-Dimension 2: Shipped Systems Evidence
-NLP scanning of career_history descriptions for production ML/AI evidence.
-"""
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -33,15 +29,22 @@ def _count_keyword_matches(text: str, keywords: list) -> int:
 
 
 def score(candidate: dict) -> float:
-    """Score shipped systems evidence (0.0 to 1.0)."""
+        """Does the candidate have good shipped systems?"""
     total_points = 0
     career_history = candidate.get('career_history', [])
     total_roles = len(career_history)
     consulting_count = 0
 
     for role in career_history:
-        desc = role.get('description', '')
-        company = role.get('company', '')
+        try:
+            desc = role['description']
+            company = role['company']
+        except KeyError:
+            # some resumes are broken, just skip them
+            continue
+            
+        if not desc:
+            continue
 
         if _is_consulting_company(company):
             consulting_count += 1
