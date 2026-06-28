@@ -40,12 +40,12 @@ All weights, keyword lists, and scoring thresholds live in `config.py`.
 
 - `shipped_systems.py` is the computational bottleneck (heavy string matching per role description). Still finishes under 2 minutes.
 - The dataset intentionally mismatches titles and skills. We scan career descriptions for ground truth instead of relying on the skills array.
-- Consulting penalty: 100% consulting career → honeypot (disqualified). Partial consulting → graduated multiplier in shipped_systems (50%/75%/90% at 90%/70%/50% ratio).
+- Consulting careers get a graduated shipped_systems penalty (50%/75%/90% at 90%/70%/50% consulting ratio). Not disqualified outright — some consulting engineers do ship real systems.
 - No ML models. No training data exists, so deterministic rules + interpretable scores.
 
 ### Output
 
 - Processed: 100,000 candidates
-- Honeypots excluded: ~76,384
-- Runtime: ~96s on CPU
-- Top 100: all ML/AI/Data Science titles, 90% India-based
+- Honeypots excluded: ~70
+- Runtime: ~90s on CPU
+- Top 100: all ML/AI/Data Science titles, 90%+ India-based

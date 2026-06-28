@@ -4,6 +4,7 @@ Produces specific, fact-based reasoning strings for the top 100 candidates.
 Each reasoning is unique, specific, and matches the candidate's rank position.
 """
 from datetime import date
+from config import CONSULTING_COMPANIES, PREFERRED_LOCATIONS
 
 
 def _get_key_skills(candidate: dict, max_skills: int = 3) -> list:
@@ -70,8 +71,7 @@ def _get_concerns(candidate: dict, rank: int) -> str:
     if not signals.get('open_to_work_flag', False):
         concerns.append("not marked as open to work")
 
-    consulting = ['tcs', 'infosys', 'wipro', 'accenture', 'cognizant', 'capgemini',
-                   'tech mahindra', 'hcl', 'mindtree']
+    consulting = CONSULTING_COMPANIES
     career = candidate.get('career_history', [])
     all_consulting = all(
         any(c in role.get('company', '').lower() for c in consulting)
@@ -154,8 +154,7 @@ def generate(candidate: dict, rank: int, dim_scores: dict) -> str:
 
     # Location
     if country.lower() == 'india':
-        preferred = ['pune', 'noida', 'delhi', 'gurgaon', 'gurugram']
-        if any(loc in location.lower() for loc in preferred):
+        if any(loc in location.lower() for loc in PREFERRED_LOCATIONS):
             parts.append(f"{location}-based (preferred location)")
 
     # GitHub

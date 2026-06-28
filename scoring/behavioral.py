@@ -1,11 +1,9 @@
 import sys
-import os
 from datetime import date
 from config import REFERENCE_DATE, BEHAVIORAL_WEIGHTS, RECENCY_SCORES, NOTICE_SCORES
 
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-import json
 
 
 def _days_since_active(last_active_str: str) -> int:

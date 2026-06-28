@@ -1,4 +1,8 @@
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
+.env
 sandbox_submission.csv
+audit_output.txt
+count_rules.py
+scratch_*.py
+final.csv

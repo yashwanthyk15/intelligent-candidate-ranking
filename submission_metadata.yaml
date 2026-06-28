@@ -58,9 +58,9 @@ methodology_summary: |
   BM25 text relevance (Okapi BM25 against JD terms, 10%),
   behavioral availability (10%), experience trajectory (10%), and location fit (10%).
   Multiplicative penalties for keyword stuffing and profile contradictions.
-  Honeypot detector with strict heuristics (F-tier title filter,
-  career anomalies, assessment contradictions, inactivity checks).
-  Zero external dependencies. Runtime: ~96s for 100K candidates on CPU.
+  Honeypot detector with targeted heuristics (F-tier title + zero ML evidence,
+  keyword stuffing, academic-only, LLM-tourist, architect-no-code).
+  Zero external dependencies. Runtime: ~90s for 100K candidates on CPU.
 
 # ============================================================================
 # Declarations
