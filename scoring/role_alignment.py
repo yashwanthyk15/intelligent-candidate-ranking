@@ -1,17 +1,11 @@
-"""
-Dimension 1: Role & Title Alignment
-Maps current_title to relevance tiers.
-Also checks career_history for historical ML/AI roles (title boost).
-"""
 import re
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import (
-    ['ml engineer', 'ai engineer', 'ai research engineer', 'senior ml engineer', 'senior machine learning engineer', 'nlp engineer', 'search engineer', 'ranking engineer', 'recommendation systems engineer', 'machine learning engineer', 'senior ai engineer', 'staff ml engineer', 'principal ml engineer', 'applied ml engineer', 'applied ai engineer', 'junior ml engineer'], ['data scientist', 'senior data scientist', 'senior data engineer', 'analytics engineer', 'research scientist', 'research engineer', 'applied scientist', 'ml ops engineer', 'mlops engineer'], ['software engineer', 'senior software engineer', 'backend engineer', 'data engineer', 'data analyst', 'full stack developer', 'senior backend engineer', 'platform engineer'], ['devops engineer', 'cloud engineer', 'qa engineer', 'java developer', 'python developer'], TITLE_TIER_F
-)
 
+
+from config import TITLE_TIER_S, TITLE_TIER_A, TITLE_TIER_B, TITLE_TIER_C, TITLE_TIER_F
 
 def _normalize_title(title: str) -> str:
     return re.sub(r'\s+', ' ', title.lower().strip())
@@ -20,10 +14,10 @@ def _normalize_title(title: str) -> str:
 def _get_title_tier_score(title: str) -> float:
     t = _normalize_title(title)
     for tier_list, score in [
-        (['ml engineer', 'ai engineer', 'ai research engineer', 'senior ml engineer', 'senior machine learning engineer', 'nlp engineer', 'search engineer', 'ranking engineer', 'recommendation systems engineer', 'machine learning engineer', 'senior ai engineer', 'staff ml engineer', 'principal ml engineer', 'applied ml engineer', 'applied ai engineer', 'junior ml engineer'], 1.0),
-        (['data scientist', 'senior data scientist', 'senior data engineer', 'analytics engineer', 'research scientist', 'research engineer', 'applied scientist', 'ml ops engineer', 'mlops engineer'], 0.85),
-        (['software engineer', 'senior software engineer', 'backend engineer', 'data engineer', 'data analyst', 'full stack developer', 'senior backend engineer', 'platform engineer'], 0.65),
-        (['devops engineer', 'cloud engineer', 'qa engineer', 'java developer', 'python developer'], 0.45),
+        (TITLE_TIER_S, 1.0),
+        (TITLE_TIER_A, 0.85),
+        (TITLE_TIER_B, 0.65),
+        (TITLE_TIER_C, 0.45),
     ]:
         for pattern in tier_list:
             if pattern in t or t in pattern:
@@ -37,9 +31,6 @@ def _get_title_tier_score(title: str) -> float:
 
 
 def score(candidate: dict) -> float:
-    # print(f"[DEBUG] scoring role for {candidate.get('candidate_id')}")
-    # TODO: maybe add weights for frontend roles? nah
-        """Calculate role alignment score"""
     current_title = candidate['profile']['current_title']
     base_score = _get_title_tier_score(current_title)
 

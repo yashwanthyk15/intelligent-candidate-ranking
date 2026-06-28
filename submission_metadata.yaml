@@ -45,24 +45,22 @@ ai_tools_used:
   - "ChatGPT / Copilot"
 
 ai_usage_summary: |
-  Used standard tools (ChatGPT/Copilot) strictly as intelligent autocomplete and for 
-  brainstorming algorithmic approaches (like BM25 optimization). No candidate data 
-  was fed to any hosted LLM. The ranking pipeline itself is pure Python with zero 
-  external API calls — all scoring logic, weights, and engineering design were 
-  human-driven.
+  Used ChatGPT/Copilot for autocomplete and brainstorming scoring heuristics.
+  No candidate data was fed to any hosted LLM. The ranking pipeline is pure
+  Python with zero external API calls.
 
 # ============================================================================
 # Approach summary
 # ============================================================================
 methodology_summary: |
-  Rule-based ranker with 6 weighted scoring dimensions: role alignment (title
-  tiering), shipped systems evidence (career history NLP), technical depth
-  (5 core domain coverage), experience trajectory, behavioral availability,
-  and location fit. Multiplicative penalties for keyword stuffing and
-  profile contradictions. Separate honeypot detector using 5 heuristics
-  (expert-zero-duration, junior-many-experts, career anomalies, assessment
-  contradictions, endorsement anomalies). Zero external dependencies.
-  Runtime: ~85 seconds for 100K candidates on CPU.
+  Rule-based ranker with 6 weighted scoring dimensions: tech depth
+  (5 core domain coverage, 35%), shipped systems evidence (career history NLP, 25%),
+  BM25 text relevance (Okapi BM25 against JD terms, 10%),
+  behavioral availability (10%), experience trajectory (10%), and location fit (10%).
+  Multiplicative penalties for keyword stuffing and profile contradictions.
+  Honeypot detector with strict heuristics (F-tier title filter,
+  career anomalies, assessment contradictions, inactivity checks).
+  Zero external dependencies. Runtime: ~96s for 100K candidates on CPU.
 
 # ============================================================================
 # Declarations

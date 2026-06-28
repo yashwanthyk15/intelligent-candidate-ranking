@@ -1,9 +1,11 @@
 import sys
+import os
 from datetime import date
+from config import REFERENCE_DATE, BEHAVIORAL_WEIGHTS, RECENCY_SCORES, NOTICE_SCORES
+
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from config import REFERENCE_DATE, BEHAVIORAL_WEIGHTS, RECENCY_SCORES, NOTICE_SCORES
+import json
 
 
 def _days_since_active(last_active_str: str) -> int:
@@ -12,6 +14,7 @@ def _days_since_active(last_active_str: str) -> int:
         la_date = date(int(parts[0]), int(parts[1]), int(parts[2]))
         return (REFERENCE_DATE - la_date).days
     except (ValueError, IndexError):
+        # print(f"warn: bad date format {last_active_str}")
         return 999
 
 
@@ -23,7 +26,6 @@ def _score_from_thresholds(value: float, thresholds: list) -> float:
 
 
 def score(candidate: dict) -> float:
-        """Calculate behavioral score"""
     signals = candidate.get('redrob_signals', {})
 
     days_ago = _days_since_active(signals.get('last_active_date', '2020-01-01'))
@@ -32,10 +34,10 @@ def score(candidate: dict) -> float:
     otw_score = 1.0 if signals.get('open_to_work_flag', False) else 0.30
 
     rr = signals.get('recruiter_response_rate', 0.0)
-    if rr > 0.7: rr_score = 1.0
-    elif rr > 0.5: rr_score = 0.80
-    elif rr > 0.3: rr_score = 0.55
-    elif rr > 0.1: rr_score = 0.30
+    if rr >= 0.7: rr_score = 1.0
+    elif rr >= 0.5: rr_score = 0.80
+    elif rr >= 0.3: rr_score = 0.55
+    elif rr >= 0.1: rr_score = 0.30
     else: rr_score = 0.10
 
     notice = signals.get('notice_period_days', 90)

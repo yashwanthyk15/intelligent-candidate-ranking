@@ -1,0 +1,263 @@
+
+================ app.py ================
+L7: # Import our backend ranking logic
+L17: # Run our exact hackathon logic
+L20: # Write to CSV
+L24: # Load for UI display
+L30: # Insights Data 1: Honeypots vs Valid
+L36: # Insights Data 2: Top 100 Titles Distribution
+L51: # Get candidate info
+L55: # Extract dimensions
+L60: # Plotly Radar Chart (Dark Mode)
+L63: fig.update_traces(fill='toself', line_color='#8b5cf6', fillcolor='rgba(139, 92, 246, 0.3)')
+L66: radialaxis=dict(visible=True, range=[0, 1], color='#52525b', gridcolor='#27272a'),
+L67: angularaxis=dict(color='#e4e4e7', gridcolor='#27272a')
+L70: title=dict(text=f"Candidate: {result_dict['candidate_id']}", font=dict(color='#fafafa')),
+L80: background-color: #09090b !important;
+L81: color: #fafafa !important;
+L84: border: 1px solid #27272a !important;
+L89: background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+L104: background-color: #18181b !important;
+L105: color: #a1a1aa !important;
+L106: border-bottom: 1px solid #27272a !important;
+L109: background-color: #09090b !important;
+L110: border-bottom: 1px solid #27272a !important;
+L113: background-color: #27272a !important;
+L118: gr.Markdown("# 🏆 Intelligent Candidate Ranking System")
+L124: # Hidden state to store full candidate results for the radar chart
+L136: gr.Markdown("### 🔍 Candidate Dimension Breakdown")
+L144: gr.Markdown("### Macro Analysis of Processed Candidates")
+L155: # Trigger radar chart when a row is selected
+
+================ audit.py ================
+L4: # Load submission
+L10: # Load candidates
+L18: # Check 10 random rows for hallucination
+L40: # Check: does reasoning mention current_title?
+L46: # Check: does reasoning mention company?
+L50: # Check YoE in reasoning
+L55: # Check: skills mentioned in reasoning actually exist in profile
+L60: # Check for response rate hallucination
+L65: # Check rank-tone consistency
+L76: # Score analysis
+L88: # Check for identical reasonings
+L92: # Check all candidate_ids exist
+L96: # Check ranks 1-100
+L100: # Check non-increasing
+L104: # Filename check
+L107: # Common rejection checks
+DOCSTRING (Module): Forensic audit: hallucination check + score analysis + spec compliance.
+
+================ config.py ================
+L7: # Reference date for recency calculations
+L10: # ============================================================================
+L11: # DIMENSION WEIGHTS (must sum to 1.0)
+L12: # ============================================================================
+L22: # ============================================================================
+L23: # DIMENSION 1: ROLE ALIGNMENT — Title Tier Mapping
+L24: # ============================================================================
+L25: # Tier S (1.0) — Perfect title match for Senior AI Engineer
+L34: # Tier A (0.85) — Strong adjacent roles
+L41: # Tier B (0.65) — Tech roles that could have ML experience
+L48: # Tier C (0.45) — Tech roles but unlikely ML depth
+L55: # Tier F (0.0) — Non-tech roles (the TRAP candidates)
+L64: # ============================================================================
+L65: # DIMENSION 2: SHIPPED SYSTEMS — Career History Keywords
+L66: # ============================================================================
+L111: # ============================================================================
+L112: # DIMENSION 3: TECHNICAL DEPTH — Core Domain Keywords
+L113: # ============================================================================
+L146: # ============================================================================
+L147: # DIMENSION 4: EXPERIENCE — Ideal Ranges
+L148: # ============================================================================
+L150: # (min_yoe, max_yoe, score)
+L163: # ============================================================================
+L164: # DIMENSION 5: BEHAVIORAL — Signal Weights
+L165: # ============================================================================
+L190: # ============================================================================
+L191: # DIMENSION 6: LOCATION
+L192: # ============================================================================
+L201: # ============================================================================
+L202: # CONSULTING COMPANIES (JD explicit disqualifier)
+L203: # ============================================================================
+L218: # ============================================================================
+L219: # HONEYPOT DETECTION THRESHOLDS
+L220: # ============================================================================
+L224: # ============================================================================
+L225: # KEYWORD STUFFING THRESHOLDS
+L226: # ============================================================================
+DOCSTRING (Module): Redrob Hackathon — Central Configuration
+All weights, thresholds, keyword lists, and scoring parameters.
+
+================ rank.py ================
+L1: #!/usr/bin/env python3
+L19: # Add project root to path
+L41: # Check honeypot first — if flagged, score = 0
+L52: # Score all 6 dimensions
+L64: # Compute weighted sum
+L70: # Apply stuffing penalty
+L73: # Apply contradiction penalty
+L76: # Final score
+L79: # BM25 math boost for dense JD keyword overlap
+L82: # GitHub bonus (additive, small)
+L89: # Saved-by-recruiters bonus (market validation)
+L94: # No upper clamp — we need differentiation among top candidates
+L95: # Scores naturally cap around 1.03 from weighted sum + small bonuses
+L147: # Sort by score descending, then candidate_id ascending for ties
+L166: # Ensure scores are strictly non-increasing with proper tiebreak
+L167: # Spec says: ties allowed, but tiebreak by candidate_id ascending.
+L168: # Our sort already handles (-score, cid), so ties are in correct order.
+L169: # We just need scores to be non-increasing (ties OK with ascending cid).
+L173: # Keep original score — ties are OK as long as tiebreak is correct
+L175: score_val = prev_score  # shouldn't happen after sort, but safety
+L179: # Re-normalize so top score matches sample format exactly
+L203: # Sanity check: print top 10
+DOCSTRING (Module): Redrob Hackathon — Intelligent Candidate Ranking System
+
+Usage:
+    python rank.py --candidates ./candidates.jsonl --out ./submission.csv
+
+Produces a ranked top-100 CSV for the Senior AI Engineer role.
+Runs in < 60 seconds on CPU with < 16 GB RAM. No network calls.
+DOCSTRING (score_candidate): Score a single candidate across all dimensions.
+Returns dict with scores and metadata.
+DOCSTRING (process_candidates): Stream through candidates.jsonl and keep top N scored candidates.
+Uses a min-heap to efficiently track top N.
+DOCSTRING (generate_output): Generate the submission CSV with top 100 ranked candidates.
+Ensures scores are strictly non-increasing.
+
+================ validate_and_submit.py ================
+L1: #!/usr/bin/env python3
+L26: # Check ranks
+L30: # Check unique candidate_ids
+L34: # Score distribution
+L39: # Check non-increasing
+L43: # Check reasoning
+L47: # Check reasoning variation
+L61: # Verify all candidate_ids exist
+L84: # Title distribution
+DOCSTRING (Module): Validation + summary report for the submission.
+Runs sanity checks and prints detailed analysis.
+DOCSTRING (analyze_submission): Print detailed analysis of submission.
+
+================ scoring\behavioral.py ================
+L48: # Market validation: recruiter interest signals
+DOCSTRING (Module): Dimension 5: Behavioral Availability
+Assesses whether the candidate is actually hirable right now.
+DOCSTRING (score): Score behavioral availability (0.0 to 1.0).
+
+================ scoring\bm25.py ================
+L9: # The core terms from the Job Description
+L17: # BM25 Parameters
+L20: AVG_DL = 150.0  # Estimated average document length in words
+L23: # Simple fast tokenization
+L28: # 1. Gather all candidate text
+L46: # Standard BM25 term frequency saturation
+L47: # Assuming IDF is ~2.0 for all query terms to save corpus-level computation time
+L53: # Normalize to a 0.0 to 1.0 range
+L57: # We apply a slight exponential curve to reward dense matches
+DOCSTRING (Module): Dimension: BM25 Semantic Relevance
+Pure Python implementation of Okapi BM25 to score candidate descriptions against the JD.
+DOCSTRING (score): Calculates an approximate BM25 score bounded to [0.0, 1.0]
+
+================ scoring\contradiction.py ================
+L22: # 1. Title words not in headline at all
+L38: # 2. Title suggests ML but summary describes non-tech work
+L44: # 3. Career history descriptions contradict title
+L57: # ML title but all career descriptions are non-tech
+L61: # Non-tech title but career IS ML — hidden gem boost
+L67: # 4. Summary explicitly claims different profession
+L77: # 5. Summary admits limited AI experience
+DOCSTRING (Module): Contradiction Detection
+Detects mismatches between title, headline, summary, and career history.
+Separate from honeypots — these are 'misleading' rather than 'impossible' profiles.
+DOCSTRING (compute_penalty): Compute contradiction penalty multiplier (0.3 to 1.1).
+1.0 = no contradiction, lower = more contradictions.
+> 1.0 = hidden gem boost (non-tech title but ML career).
+
+================ scoring\experience.py ================
+L41: # Career stability: average tenure
+L50: # Company type analysis
+L65: # Career progression check
+DOCSTRING (Module): Dimension 4: Experience Level & Career Trajectory
+Evaluates seniority, stability, progression, and company types.
+DOCSTRING (score): Score experience trajectory (0.0 to 1.0).
+
+================ scoring\honeypot.py ================
+L31: # 1. Expert skills with 0 duration
+L39: # 2. Very junior with many expert skills
+L44: # 3. Career duration anomaly
+L53: # 4. Assessment score contradicts proficiency
+L63: # 5. Many expert skills but zero platform endorsements
+DOCSTRING (Module): Honeypot Detection
+Identifies ~80 candidates with subtly impossible profiles.
+Honeypot rate > 10% in top 100 = disqualification.
+DOCSTRING (is_honeypot): Returns True if candidate is likely a honeypot.
+
+Heuristics:
+1. Expert proficiency with 0 duration_months
+2. Very junior but many expert skills
+3. Career durations don't add up
+4. Assessment scores contradict proficiency
+5. Endorsement anomalies
+
+================ scoring\location.py ================
+DOCSTRING (Module): Dimension 6: Location & Logistics Fit
+Scores proximity to Pune/Noida and willingness to relocate.
+DOCSTRING (score): Score location fit (0.0 to 1.0).
+
+================ scoring\reasoning.py ================
+L126: # Lead with title + experience
+L129: # Career evidence with JD connection
+L133: # JD connection for top candidates
+L135: # Explicitly connect to JD requirements
+L145: # Key skills with depth context
+L156: # Behavioral note
+L162: # Location
+L168: # GitHub
+L173: # Assemble
+DOCSTRING (Module): Reasoning Generation
+Produces specific, fact-based reasoning strings for the top 100 candidates.
+Each reasoning is unique, specific, and matches the candidate's rank position.
+DOCSTRING (_get_key_skills): Get the most relevant AI/ML skills, prioritized by proficiency.
+DOCSTRING (_get_career_evidence): Extract key career evidence of ML/shipped systems.
+DOCSTRING (_get_concerns): Identify honest concerns about the candidate.
+DOCSTRING (generate): Generate a specific, fact-based reasoning string.
+Each reasoning must be unique, specific, and rank-appropriate.
+
+================ scoring\role_alignment.py ================
+L44: # Check career history for ML/AI title experience — boost if they WERE higher-tier
+L54: # Headline ML keyword micro-boost
+DOCSTRING (Module): Dimension 1: Role & Title Alignment
+Maps current_title to relevance tiers.
+Also checks career_history for historical ML/AI roles (title boost).
+DOCSTRING (score): Score role alignment (0.0 to 1.0).
+
+================ scoring\shipped_systems.py ================
+L57: # Also scan summary
+L66: # Consulting penalty based on ratio
+DOCSTRING (Module): Dimension 2: Shipped Systems Evidence
+NLP scanning of career_history descriptions for production ML/AI evidence.
+DOCSTRING (score): Score shipped systems evidence (0.0 to 1.0).
+
+================ scoring\stuffing.py ================
+L42: # 1. Too many skills
+L46: # 2. Too many expert skills
+L51: # 3. F-tier title with many AI skills
+L57: # 4. All skills have 0 endorsements but many marked advanced/expert
+L63: # 5. Assessment scores very low despite expert claims
+DOCSTRING (Module): Keyword-Stuffing Penalty
+Detects candidates who pad their profiles with AI keywords they don't possess.
+DOCSTRING (compute_penalty): Compute stuffing penalty multiplier (0.3 to 1.0).
+1.0 = no penalty, lower = more penalty.
+
+================ scoring\tech_depth.py ================
+L61: # Heavily weight depth: 60% top, 30% second, 10% third
+L68: # Small bonus for remaining breadth
+DOCSTRING (Module): Dimension 3: Specific Technical Depth
+Measures coverage of the 5 core domains from the JD.
+DOCSTRING (score): Score technical depth (0.0 to 1.0).
+
+================ scoring\__init__.py ================
+DOCSTRING (Module): Redrob Hackathon — Scoring Modules
+Each module exposes a score(candidate) -> float function.

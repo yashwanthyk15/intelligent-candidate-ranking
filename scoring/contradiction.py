@@ -6,11 +6,7 @@ Separate from honeypots — these are 'misleading' rather than 'impossible' prof
 
 
 def compute_penalty(candidate: dict) -> float:
-    """
-    Compute contradiction penalty multiplier (0.3 to 1.1).
-    1.0 = no contradiction, lower = more contradictions.
-    > 1.0 = hidden gem boost (non-tech title but ML career).
-    """
+    # Calculate and return contradiction multiplier
     penalty = 1.0
     profile = candidate['profile']
     career = candidate.get('career_history', [])

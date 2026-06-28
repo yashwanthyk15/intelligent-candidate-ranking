@@ -7,7 +7,6 @@ from datetime import date
 
 
 def _get_key_skills(candidate: dict, max_skills: int = 3) -> list:
-    """Get the most relevant AI/ML skills, prioritized by proficiency."""
     ai_keywords = [
         'embeddings', 'vector', 'faiss', 'pinecone', 'weaviate', 'qdrant', 'milvus',
         'ranking', 'retrieval', 'search', 'recommendation', 'bm25',
@@ -31,7 +30,6 @@ def _get_key_skills(candidate: dict, max_skills: int = 3) -> list:
 
 
 def _get_career_evidence(candidate: dict) -> str:
-    """Extract key career evidence of ML/shipped systems."""
     shipped_keywords = [
         'ranking', 'retrieval', 'recommendation', 'search system',
         'embeddings', 'vector', 'deployed', 'shipped', 'production',
@@ -49,7 +47,6 @@ def _get_career_evidence(candidate: dict) -> str:
 
 
 def _get_concerns(candidate: dict, rank: int) -> str:
-    """Identify honest concerns about the candidate."""
     concerns = []
     signals = candidate.get('redrob_signals', {})
 
@@ -103,10 +100,6 @@ def _get_concerns(candidate: dict, rank: int) -> str:
 
 
 def generate(candidate: dict, rank: int, dim_scores: dict) -> str:
-    """
-    Generate a specific, fact-based reasoning string.
-    Each reasoning must be unique, specific, and rank-appropriate.
-    """
     profile = candidate['profile']
     signals = candidate.get('redrob_signals', {})
 

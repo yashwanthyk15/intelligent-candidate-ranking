@@ -7,14 +7,13 @@ from datetime import date
 # Reference date for recency calculations
 REFERENCE_DATE = date(2026, 6, 15)
 
-# DIMENSION WEIGHTS (must sum to 1.0)
 WEIGHTS = {
-    'role_alignment': 0.30,
+    'tech_depth': 0.35,
     'shipped_systems': 0.25,
-    'tech_depth': 0.20,
-    'experience': 0.10,
+    'bm25_semantic': 0.10,
     'behavioral': 0.10,
-    'location': 0.05,
+    'experience': 0.10,
+    'location': 0.10,
 }
 
 # DIMENSION 1: ROLE ALIGNMENT — Title Tier Mapping
@@ -137,7 +136,6 @@ CORE_DOMAINS = {
 
 # DIMENSION 4: EXPERIENCE — Ideal Ranges
 EXPERIENCE_SCORE_MAP = [
-    # (min_yoe, max_yoe, score)
     (5, 9, 1.0),
     (4, 5, 0.85),
     (9, 12, 0.75),
@@ -152,11 +150,11 @@ JOB_HOPPER_PENALTY = 0.30
 
 # DIMENSION 5: BEHAVIORAL — Signal Weights
 BEHAVIORAL_WEIGHTS = {
-    'recency': 0.40,
-    'open_to_work': 0.30,
-    'response_rate': 0.30,
-    'notice_period': 0.0,
-    'market_validation': 0.0,
+    'recency': 0.35,
+    'open_to_work': 0.25,
+    'response_rate': 0.25,
+    'notice_period': 0.10,
+    'market_validation': 0.05,
 }
 
 RECENCY_SCORES = [

@@ -33,71 +33,29 @@ from scoring import contradiction
 from scoring import reasoning
 
 
-def score_candidate(candidate: dict) -> dict:
-    """
-    Score a single candidate across all dimensions.
-    Returns dict with scores and metadata.
-    """
-    # Check honeypot first — if flagged, score = 0
-    is_hp = honeypot.is_honeypot(candidate)
-    if is_hp:
-        return {
-            'candidate_id': candidate['candidate_id'],
-            'final_score': 0.0,
-            'is_honeypot': True,
-            'dim_scores': {},
-            'candidate': candidate,
-        }
+def score_candidate(candidate: dict, ss_score: float = None) -> dict:
+    penalties = stuffing.compute_penalty(candidate) * contradiction.compute_penalty(candidate)
 
-    # Score all 6 dimensions
-    bm25_score = bm25.score(candidate)
+    if ss_score is None:
+        ss_score = shipped_systems.score(candidate)
+
     dim_scores = {
-        'role_alignment': role_alignment.score(candidate),
-        'shipped_systems': shipped_systems.score(candidate),
         'tech_depth': tech_depth.score(candidate),
+        'shipped_systems': ss_score,
+        'bm25_semantic': bm25.score(candidate),
         'experience': experience.score(candidate),
         'behavioral': behavioral.score(candidate),
         'location': location.score(candidate),
-        'bm25_semantic': bm25_score,
+        'role_alignment': role_alignment.score(candidate),  # not weighted, for radar chart
     }
 
-    # Compute weighted sum
-    weighted_sum = sum(
-        dim_scores[dim] * weight
-        for dim, weight in WEIGHTS.items()
-    )
+    final_score = sum(dim_scores.get(dim, 0) * w for dim, w in WEIGHTS.items())
+    final_score *= penalties
 
-    # Apply stuffing penalty
-    stuff_penalty = stuffing.compute_penalty(candidate)
-
-    # Apply contradiction penalty
-    contra_penalty = contradiction.compute_penalty(candidate)
-
-    # Final score
-    final_score = weighted_sum * stuff_penalty * contra_penalty
-    
-    # BM25 math boost for dense JD keyword overlap
-    final_score += (bm25_score * 0.05)
-
-    # Continuous tie-breaking micro-bonuses (guarantees unique float scores)
-    yoe_val = candidate.get('years_of_experience', 0.0)
-    resp_val = candidate.get('recruiter_response_rate', 0.0)
-    final_score += (yoe_val * 0.001) + (resp_val * 0.0001)
-
-    # GitHub bonus (additive, small)
-    github = candidate.get('redrob_signals', {}).get('github_activity_score', -1)
-    if github > 50:
-        final_score += 0.02
-    elif github > 20:
-        final_score += 0.01
-
-    # Saved-by-recruiters bonus (market validation)
-    saved = candidate.get('redrob_signals', {}).get('saved_by_recruiters_30d', 0)
-    if saved > 10:
-        final_score += 0.01
-
-    # No upper clamp — we need differentiation among top candidates
-    # Scores naturally cap around 1.03 from weighted sum + small bonuses
+    # tiebreak: slight bump from yoe + response rate so no two scores are identical
+    yoe_val = candidate.get('profile', {}).get('years_of_experience', 0.0)
+    resp_val = candidate.get('redrob_signals', {}).get('recruiter_response_rate', 0.0)
+    final_score += (yoe_val * 0.0001) + (resp_val * 0.00001)
     final_score = max(0.0, final_score)
 
     return {
@@ -105,18 +63,12 @@ def score_candidate(candidate: dict) -> dict:
         'final_score': final_score,
         'is_honeypot': False,
         'dim_scores': dim_scores,
-        'stuff_penalty': stuff_penalty,
-        'contra_penalty': contra_penalty,
         'candidate': candidate,
     }
 
 
 def process_candidates(candidates_path: str, top_n: int = 200) -> list:
-    # print(f"Starting processing... path={candidates_path}")
-    """
-    Stream through candidates.jsonl and keep top N scored candidates.
-    Uses a min-heap to efficiently track top N.
-    """
+    # Stream JSONL, keep top N in a min-heap
     heap = []
     total = 0
     honeypots = 0
@@ -128,17 +80,18 @@ def process_candidates(candidates_path: str, top_n: int = 200) -> list:
                 continue
 
             candidate = json.loads(line)
-            result = score_candidate(candidate)
-            total += 1
+            ss_score = shipped_systems.score(candidate)
 
-            if result['is_honeypot']:
+            if honeypot.is_honeypot(candidate, ss_score):
                 honeypots += 1
                 continue
+
+            result = score_candidate(candidate, ss_score)
+            total += 1
 
             score_val = result['final_score']
             cid = result['candidate_id']
 
-            # print(f"score = {score_val}")
             if len(heap) < top_n:
                 heapq.heappush(heap, (score_val, cid, result))
             elif score_val > heap[0][0]:
@@ -164,10 +117,6 @@ def process_candidates(candidates_path: str, top_n: int = 200) -> list:
 
 
 def generate_output(results: list, output_path: str):
-    """
-    Generate the submission CSV with top 100 ranked candidates.
-    Ensures scores are strictly non-increasing.
-    """
     top_100 = results[:100]
 
     # Ensure scores are strictly non-increasing with proper tiebreak

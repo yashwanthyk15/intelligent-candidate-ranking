@@ -38,7 +38,7 @@ def analyze_submission(csv_path: str, candidates_path: str = None):
 
     # Check non-increasing
     non_increasing = all(scores[i] >= scores[i+1] for i in range(len(scores)-1))
-    print(f"Scores non-increasing: {'✅ YES' if non_increasing else '❌ NO !!!'}")
+    print(f"Scores non-increasing: {'YES' if non_increasing else 'NO !!!'}")
 
     # Check reasoning
     empty_reasons = sum(1 for r in rows if not r.get('reasoning', '').strip())
@@ -60,7 +60,7 @@ def analyze_submission(csv_path: str, candidates_path: str = None):
 
         # Verify all candidate_ids exist
         missing = [cid for cid in cids if cid not in cand_lookup]
-        print(f"Missing candidate_ids: {len(missing)} {'❌' if missing else '✅'}")
+        print(f"Missing candidate_ids: {len(missing)} {'FAIL' if missing else 'OK'}")
 
         print(f"\n{'='*70}")
         print("TOP 10 CANDIDATES — DETAILED")
@@ -107,7 +107,7 @@ def analyze_submission(csv_path: str, candidates_path: str = None):
             print(f"  {co}: {count}")
 
     print(f"\n{'='*60}")
-    print("  ALL CHECKS PASSED ✅" if non_increasing and len(rows) == 100 else "  ISSUES FOUND ❌")
+    print("  ALL CHECKS PASSED" if non_increasing and len(rows) == 100 else "  ISSUES FOUND")
     print(f"{'='*60}")
 
 

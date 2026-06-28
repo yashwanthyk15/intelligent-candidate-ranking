@@ -10,7 +10,7 @@ from config import (
 
 def _yoe_score(years: float) -> float:
     for lo, hi, s in EXPERIENCE_SCORE_MAP:
-        if lo <= years < hi:
+        if lo <= years <= hi:
             return s
     return 0.3
 
@@ -26,9 +26,7 @@ def _is_product_company(company: str) -> bool:
 
 
 def score(candidate: dict) -> float:
-        # calculate score
     yoe = candidate['profile'].get('years_of_experience', 0)
-    # if yoe == 0: print("WARNING: yoe is zero!")
     base = _yoe_score(yoe)
 
     career = candidate.get('career_history', [])
@@ -54,9 +52,7 @@ def score(candidate: dict) -> float:
         if _is_product_company(company):
             has_product = True
 
-    if has_consulting and not has_product:
-        base -= 0.20
-    elif has_product:
+    if has_product:
         base += 0.10
 
     # Career progression check

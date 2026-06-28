@@ -28,10 +28,7 @@ def _is_f_tier_title(title: str) -> bool:
 
 
 def compute_penalty(candidate: dict) -> float:
-    """
-    Compute stuffing penalty multiplier (0.3 to 1.0).
-    1.0 = no penalty, lower = more penalty.
-    """
+    # Calculate and return stuffing multiplier
     skills = candidate.get('skills', [])
     if not skills:
         return 1.0

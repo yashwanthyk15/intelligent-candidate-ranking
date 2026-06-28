@@ -8,7 +8,6 @@ from pathlib import Path
 from rank import process_candidates, generate_output
 
 def run_ranking(file_obj):
-    # TODO: refactor this if gradio crashes on large files
     if file_obj is None:
         return None, "Please upload a candidates.jsonl file.", None, None, None, None, gr.update(value=None)
     
@@ -53,9 +52,8 @@ def show_radar_chart(evt: gr.SelectData, results_state):
     _, _, result_dict = results_state[row_idx]
     dim_scores = result_dict.get('dim_scores', {})
     
-    # Extract dimensions
-    categories = ['Role Alignment', 'Shipped Systems', 'Tech Depth', 'Experience', 'Behavioral', 'Location', 'BM25 Semantic']
-    keys = ['role_alignment', 'shipped_systems', 'tech_depth', 'experience', 'behavioral', 'location', 'bm25_semantic']
+    categories = ['Tech Depth', 'Shipped Systems', 'BM25 Relevance', 'Experience', 'Behavioral', 'Location']
+    keys = ['tech_depth', 'shipped_systems', 'bm25_semantic', 'experience', 'behavioral', 'location']
     values = [dim_scores.get(k, 0.0) for k in keys]
     
     # Plotly Radar Chart (Dark Mode)
@@ -118,7 +116,7 @@ tr:hover td {
 with gr.Blocks(title="Redrob Hackathon - Sandbox") as app:
     gr.Markdown("# 🏆 Intelligent Candidate Ranking System")
     gr.Markdown("""
-    **Architecture:** 6-Dimension Feature Scoring + Pure-Python BM25 Relevance Engine
+    **Architecture:** 6-Dimension Weighted Scoring + Multiplicative Penalties (Stuffing, Contradiction)
     **Constraints:** CPU only, ≤ 16GB RAM, No external APIs, < 300s runtime.
     """)
     

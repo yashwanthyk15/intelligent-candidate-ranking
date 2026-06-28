@@ -1,4 +1,5 @@
 import sys
+import re
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -9,11 +10,8 @@ from config import (
     SHIPPED_TIER2_POINTS, SHIPPED_TIER2_CAP,
     SHIPPED_TIER3_POINTS, SHIPPED_TIER3_CAP,
     SCALE_BONUS, SHIPPED_MAX_SCORE,
-    CONSULTING_COMPANIES,
+    CONSULTING_COMPANIES, PRODUCT_COMPANIES
 )
-
-
-import re
 
 def _is_consulting_company(company: str) -> bool:
     c = company.lower().strip()
@@ -29,7 +27,6 @@ def _count_keyword_matches(text: str, keywords: list) -> int:
 
 
 def score(candidate: dict) -> float:
-        """Does the candidate have good shipped systems?"""
     total_points = 0
     career_history = candidate.get('career_history', [])
     total_roles = len(career_history)
@@ -39,30 +36,34 @@ def score(candidate: dict) -> float:
         try:
             desc = role['description']
             company = role['company']
-        except KeyError:
-            # some resumes are broken, just skip them
+        except KeyError as e:
+            # print(f"Candidate missing key in role: {e}")
             continue
             
         if not desc:
             continue
 
         if _is_consulting_company(company):
+            # Track consulting experience for penalty threshold
             consulting_count += 1
+            
+        is_product = any(re.search(rf"\b{re.escape(pc)}\b", company.lower().strip()) for pc in PRODUCT_COMPANIES)
+        multiplier = 1.5 if is_product else 1.0
 
         t1 = _count_keyword_matches(desc, SHIPPED_TIER1_KEYWORDS)
-        total_points += min(t1 * SHIPPED_TIER1_POINTS, SHIPPED_TIER1_CAP)
+        total_points += min(t1 * SHIPPED_TIER1_POINTS * multiplier, SHIPPED_TIER1_CAP)
 
         t2 = _count_keyword_matches(desc, SHIPPED_TIER2_KEYWORDS)
-        total_points += min(t2 * SHIPPED_TIER2_POINTS, SHIPPED_TIER2_CAP)
+        total_points += min(t2 * SHIPPED_TIER2_POINTS * multiplier, SHIPPED_TIER2_CAP)
 
         t3 = _count_keyword_matches(desc, SHIPPED_TIER3_KEYWORDS)
-        total_points += min(t3 * SHIPPED_TIER3_POINTS, SHIPPED_TIER3_CAP)
+        total_points += min(t3 * SHIPPED_TIER3_POINTS * multiplier, SHIPPED_TIER3_CAP)
 
         scale = _count_keyword_matches(desc, SCALE_EVIDENCE_KEYWORDS)
         if scale >= 2:
-            total_points += SCALE_BONUS
+            total_points += SCALE_BONUS * multiplier
 
-    # Also scan summary
+    # Extract candidate summary
     summary = candidate['profile'].get('summary', '')
     t1s = _count_keyword_matches(summary, SHIPPED_TIER1_KEYWORDS)
     t2s = _count_keyword_matches(summary, SHIPPED_TIER2_KEYWORDS)
@@ -71,12 +72,14 @@ def score(candidate: dict) -> float:
 
     raw_score = min(1.0, total_points / SHIPPED_MAX_SCORE)
 
-    # Consulting penalty based on ratio
+    # Consulting penalty based on ratio (Honeypot already filters 100% consulting)
     if total_roles > 0:
         consulting_ratio = consulting_count / total_roles
-        if consulting_ratio == 1.0:
+        if consulting_ratio >= 0.90:
             raw_score *= 0.50
-        elif consulting_ratio > 0.70:
-            raw_score *= 0.70
+        elif consulting_ratio >= 0.70:
+            raw_score *= 0.75
+        elif consulting_ratio >= 0.50:
+            raw_score *= 0.90
 
     return round(raw_score, 4)
