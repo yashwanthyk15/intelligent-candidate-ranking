@@ -1,32 +1,23 @@
 # Redrob Hackathon — Submission Metadata
-# Fill in your personal details before submitting.
 
-# ============================================================================
 # Team identity
-# ============================================================================
-team_name: "YOUR_TEAM_NAME"
+team_name: "Ultra Guardian"
 
 primary_contact:
-  name: "YOUR NAME"
-  email: "your@email.com"
-  phone: "+91-XXXXXXXXXX"
+  name: "Yashwanth Kumar S B"
+  email: "yashwanthkumarsb2004@gmail.com"
+  phone: "+91-9902278874"
 
-team_members:
-  - name: "YOUR NAME"
-    email: "your@email.com"
-    role: "ML Engineer"
 
-# ============================================================================
+
+
 # Code and reproducibility
-# ============================================================================
 github_repo: "https://github.com/yashwanthyk15/intelligent-candidate-ranking"
 sandbox_link: "https://huggingface.co/spaces/YOUR_USERNAME/redrob-ranker"
 
 reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
 
-# ============================================================================
 # Compute environment
-# ============================================================================
 compute:
   platform: "Windows PC"
   cpu_cores: 8
@@ -38,20 +29,16 @@ compute:
   pre_computation_required: false
   pre_computation_time_minutes: 0
 
-# ============================================================================
 # AI tools declaration
-# ============================================================================
 ai_tools_used:
-  - "ChatGPT / Copilot"
+  - "ChatGPT / Claude / Antigravity"
 
 ai_usage_summary: |
-  Used ChatGPT/Copilot for autocomplete and brainstorming scoring heuristics.
+  Used Claude/Antigravity for autocomplete and brainstorming scoring heuristics.
   No candidate data was fed to any hosted LLM. The ranking pipeline is pure
   Python with zero external API calls.
 
-# ============================================================================
 # Approach summary
-# ============================================================================
 methodology_summary: |
   Rule-based ranker with 6 weighted scoring dimensions: tech depth
   (5 core domain coverage, 35%), shipped systems evidence (career history NLP, 25%),
@@ -62,9 +49,7 @@ methodology_summary: |
   keyword stuffing, academic-only, LLM-tourist, architect-no-code).
   Zero external dependencies. Runtime: ~90s for 100K candidates on CPU.
 
-# ============================================================================
 # Declarations
-# ============================================================================
 declarations:
   read_submission_spec: true
   code_is_original_work: true

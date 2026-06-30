@@ -1,4 +1,4 @@
-# Honeypot filter — flags obviously fake/trap candidates for exclusion
+# Honeypot filter — flags candidates with impossible/fabricated profiles
 import sys
 from pathlib import Path
 from scoring import shipped_systems
@@ -12,40 +12,44 @@ def is_honeypot(candidate: dict, ss_score: float = None) -> bool:
     signals = candidate.get('redrob_signals', {})
     profile = candidate.get('profile', {})
     title = profile.get('current_title', '').lower()
+    career = candidate.get('career_history', [])
+    yoe = profile.get('years_of_experience', 0)
 
     if ss_score is None:
         ss_score = shipped_systems.score(candidate)
 
-    # 1. F-tier title with zero production ML evidence
-    # The dataset scrambles titles on purpose, so we only flag if
-    # both the title is non-tech AND there's no career evidence of ML work.
+    # 1. Classic keyword stuffer: non-tech title, claims 5+ skills,
+    #    but career history has literally ZERO ML/production keyword matches.
+    #    This is the JD's explicit trap: "Marketing Manager with perfect skill list."
     is_f_tier = any(f_title == title for f_title in TITLE_TIER_F)
-    if is_f_tier and ss_score < 0.05:
+    if is_f_tier and ss_score == 0.0 and len(skills) >= 5:
         return True
 
-    # 2. Keyword stuffing: 20+ skills listed but no real shipped work
-    if len(skills) >= 20 and ss_score < 0.05:
+    # 2. Impossible tenure: a single role duration exceeds total stated YoE.
+    #    Spec example: "8 years of experience at a company founded 3 years ago."
+    if yoe > 0:
+        for role in career:
+            dur = role.get('duration_months', 0)
+            if dur > 0 and dur > (yoe * 12 + 12):  # 12-month tolerance
+                return True
+
+    # 3. Keyword stuffing: 20+ skills listed but literally zero shipped work
+    if len(skills) >= 20 and ss_score == 0.0:
         return True
 
-    # 3. Pure academic without any deployment evidence
-    academic_titles = ['research assistant', 'phd researcher', 'postdoctoral', 'graduate student']
-    is_academic = any(t in title for t in academic_titles)
-    if is_academic and ss_score < 0.1:
-        return True
-
-    # 4. LLM tourist: <= 2 YoE, only knows LLM wrappers, no traditional ML
-    yoe = profile.get('years_of_experience', 0)
+    # 4. LLM tourist: <= 2 YoE, only knows LLM wrappers, zero real ML career
     if yoe <= 2.0:
         skill_names = [s.get('name', '').lower() for s in skills]
         has_llm = any(kw in sn for sn in skill_names for kw in ['langchain', 'openai', 'llm', 'chatgpt'])
         has_trad_ml = any(kw in sn for sn in skill_names for kw in ['scikit', 'xgboost', 'random forest', 'pytorch', 'tensorflow'])
-        if has_llm and not has_trad_ml and ss_score < 0.1:
+        if has_llm and not has_trad_ml and ss_score == 0.0:
             return True
 
-    # 5. Architect/Director with no code activity and no shipped systems
+    # 5. Architect/Director who hasn't written code and has no shipped systems
     if 'architect' in title or 'director' in title:
         github = signals.get('github_activity_score', -1)
-        if github < 10 and ss_score < 0.2:
+        if github < 10 and ss_score == 0.0:
             return True
 
     return False
+
