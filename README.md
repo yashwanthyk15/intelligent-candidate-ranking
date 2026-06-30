@@ -46,6 +46,6 @@ All weights, keyword lists, and scoring thresholds live in `config.py`.
 ### Output
 
 - Processed: 100,000 candidates
-- Honeypots excluded: ~70
+- Honeypots excluded: ~82
 - Runtime: ~90s on CPU
 - Top 100: all ML/AI/Data Science titles, 90%+ India-based
