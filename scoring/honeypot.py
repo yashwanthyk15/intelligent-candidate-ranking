@@ -18,38 +18,26 @@ def is_honeypot(candidate: dict, ss_score: float = None) -> bool:
     if ss_score is None:
         ss_score = shipped_systems.score(candidate)
 
-    # 1. Classic keyword stuffer: non-tech title, claims 5+ skills,
-    #    but career history has literally ZERO ML/production keyword matches.
-    #    This is the JD's explicit trap: "Marketing Manager with perfect skill list."
-    is_f_tier = any(f_title == title for f_title in TITLE_TIER_F)
-    if is_f_tier and ss_score == 0.0 and len(skills) >= 5:
-        return True
-
-    # 2. Impossible tenure: a single role duration exceeds total stated YoE.
+    # 1. Impossible tenure: a single role duration exceeds total stated YoE.
     #    Spec example: "8 years of experience at a company founded 3 years ago."
     if yoe > 0:
         for role in career:
             dur = role.get('duration_months', 0)
-            if dur > 0 and dur > (yoe * 12 + 12):  # 12-month tolerance
+            if dur > 0 and dur > (yoe * 12 + 24):  # 24-month tolerance
                 return True
 
-    # 3. Keyword stuffing: 20+ skills listed but literally zero shipped work
-    if len(skills) >= 20 and ss_score == 0.0:
-        return True
-
-    # 4. LLM tourist: <= 2 YoE, only knows LLM wrappers, zero real ML career
-    if yoe <= 2.0:
+    # 2. LLM tourist: very junior, only knows LLM wrappers, zero real ML career
+    if yoe <= 1.2:
         skill_names = [s.get('name', '').lower() for s in skills]
         has_llm = any(kw in sn for sn in skill_names for kw in ['langchain', 'openai', 'llm', 'chatgpt'])
         has_trad_ml = any(kw in sn for sn in skill_names for kw in ['scikit', 'xgboost', 'random forest', 'pytorch', 'tensorflow'])
         if has_llm and not has_trad_ml and ss_score == 0.0:
             return True
 
-    # 5. Architect/Director who hasn't written code and has no shipped systems
+    # 3. Architect/Director who hasn't written code and has no shipped systems
     if 'architect' in title or 'director' in title:
         github = signals.get('github_activity_score', -1)
         if github < 10 and ss_score == 0.0:
             return True
 
     return False
-
